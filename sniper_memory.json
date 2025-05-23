@@ -1,0 +1,16 @@
+[
+  {
+    "token": "0xABCDEF...",
+    "buy_price": 0.01,
+    "sell_price": 0.02,
+    "gain": 1.0,
+    "timestamp": 1747972810.123
+  },
+  {
+    "token": "0x123456789abcdef",
+    "buy_price": 0.0021,
+    "sell_price": 0.0042,
+    "gain": 1.0,
+    "timestamp": 1748022058.7375112
+  }
+]
