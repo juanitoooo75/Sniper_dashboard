@@ -1,5 +1,4 @@
-from flask import Flask, render_template_string, send_file
-from flask import request
+from flask import Flask, render_template_string, send_file, request
 import json
 import os
 import requests
@@ -45,6 +44,7 @@ def get_bnb_price():
         return r.json()["binancecoin"]["usd"]
     except:
         return 500
+
 def get_level_info(gain_usd):
     if gain_usd >= 1_000_000:
         return "👑 Dieu du marché – LEVEL 5"
@@ -63,6 +63,7 @@ def get_level_info(gain_usd):
 def dashboard():
     if request.args.get("access") != "juanpower":
         return "⛔ Accès refusé"
+    
     bnb_price = get_bnb_price()
     bnb_balance = float(web3.from_wei(web3.eth.get_balance(wallet_address), 'ether'))
 
@@ -110,8 +111,8 @@ def dashboard():
         bal = get_token_balance(addr)
         if bal > 0:
             token_holdings.append({"symbol": symbol, "amount": bal})
-    return render_template_string("""
-    <html>
+
+    return render_template_string("""<html>
     <head>
         <title>Dashboard Sniper</title>
         <meta http-equiv="refresh" content="15">
@@ -159,11 +160,7 @@ def dashboard():
         <table>
             <tr><th>Token</th><th>Montant</th><th>Prix achat</th></tr>
             {% for p in open_positions %}
-            <tr>
-                <td>{{ p.token }}</td>
-                <td>{{ p.amount }}</td>
-                <td>{{ p.buy_price }}</td>
-            </tr>
+            <tr><td>{{ p.token }}</td><td>{{ p.amount }}</td><td>{{ p.buy_price }}</td></tr>
             {% endfor %}
         </table>
 
@@ -171,12 +168,7 @@ def dashboard():
         <table>
             <tr><th>Token</th><th>Gain %</th><th>Prix achat</th><th>Prix vente</th></tr>
             {% for t in closed_trades %}
-            <tr>
-                <td>{{ t.token }}</td>
-                <td>{{ (t.gain * 100) | round(2) }}%</td>
-                <td>{{ t.buy_price }}</td>
-                <td>{{ t.sell_price }}</td>
-            </tr>
+            <tr><td>{{ t.token }}</td><td>{{ (t.gain * 100) | round(2) }}%</td><td>{{ t.buy_price }}</td><td>{{ t.sell_price }}</td></tr>
             {% endfor %}
         </table>
 
@@ -201,11 +193,20 @@ def dashboard():
         <audio autoplay><source src="/victory.mp3" type="audio/mpeg"></audio>
         {% endif %}
     </body>
-    </html>
-    """, bnb_balance=bnb_balance, bnb_price=bnb_price, token_holdings=token_holdings,
-         open_positions=open_positions, closed_trades=closed_trades,
-         total_gain_bnb=total_gain_bnb, gain_usd=gain_usd, total_loss_bnb=total_loss_bnb,
-         loss_usd=loss_usd, progress=progress, level=level, play_sound=play_sound)
+    </html>""",
+    bnb_balance=bnb_balance,
+    bnb_price=bnb_price,
+    token_holdings=token_holdings,
+    open_positions=open_positions,
+    closed_trades=closed_trades,
+    total_gain_bnb=total_gain_bnb,
+    gain_usd=gain_usd,
+    total_loss_bnb=total_loss_bnb,
+    loss_usd=loss_usd,
+    progress=progress,
+    level=level,
+    play_sound=play_sound
+)
 
 @app.route("/plot.png")
 def plot_png():
@@ -214,7 +215,7 @@ def plot_png():
             data = json.load(f)
     except:
         data = []
-    x = list(range(1, len(data)+1))
+    x = list(range(1, len(data) + 1))
     y = [float(d["gain"]) * 100 for d in data]
     plt.style.use('dark_background')
     fig, ax = plt.subplots(figsize=(7, 3))
@@ -257,9 +258,7 @@ def victory():
     return send_file("victory.mp3", mimetype='audio/mpeg')
 
 if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))  # Port injecté par Render automatiquement
+    port = int(os.environ.get("PORT", 5000))
     print(f"✅ Dashboard lancé sur le port {port}")
     app.run(host="0.0.0.0", port=port)
-
 
